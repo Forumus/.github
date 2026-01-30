@@ -12,9 +12,9 @@ Some special features of our project can be found here: [youtu.be/o50v57Y16vA](y
 2. [Special Features](#special-features)
 3. [System Architecture](#system-architecture)
 4. [Applications](#applications)
-   - [Client Application](#client-application)
-   - [Admin Application](#admin-application)
-   - [Backend Server](#backend-server)
+    - [Client Application](#client-application)
+    - [Admin Application](#admin-application)
+    - [Backend Server](#backend-server)
 5. [Technology Stack](#technology-stack)
 6. [Documentation](#documentation)
 7. [CI/CD Pipeline](#cicd-pipeline)
@@ -30,10 +30,10 @@ Forumus is a multi-platform forum ecosystem consisting of three interconnected a
 
 ### System Components
 
-| Component | Platform | Description |
-|-----------|----------|-------------|
-| Client App | Android Kotlin | End-user forum access for students and teachers |
-| Admin App | Android Kotlin | Content moderation and user management |
+| Component      | Platform         | Description                                          |
+| -------------- | ---------------- | ---------------------------------------------------- |
+| Client App     | Android Kotlin   | End-user forum access for students and teachers      |
+| Admin App      | Android Kotlin   | Content moderation and user management               |
 | Backend Server | Spring Boot Java | AI services, email notifications, push notifications |
 
 ---
@@ -56,12 +56,12 @@ sequenceDiagram
     participant Listener as Backend Listener
     participant AI as Gemini AI
     participant FCM
-    
+
     User->>Client: Create Post
     Client->>Firestore: Save Post (PENDING)
     Firestore->>Listener: Trigger Event
     Listener->>AI: Validate Content
-    
+
     alt Content Valid
         AI->>Listener: Approved
         Listener->>Firestore: Update Status (APPROVED)
@@ -77,6 +77,7 @@ sequenceDiagram
 ```
 
 **Community Guidelines Enforced**:
+
 - **No Offensive Language**: Detects and prevents hate speech, slurs, and discriminatory language
 - **No Personal Attacks**: Identifies harassment, bullying, and targeted abuse toward individuals
 - **Appropriate Content**: Filters out explicit, violent, or otherwise inappropriate material
@@ -85,6 +86,7 @@ sequenceDiagram
 - **Topic Relevance**: Validates that posts align with academic and educational discussions
 
 **Benefits**:
+
 - **Proactive Protection**: Prevents harmful content from ever appearing in the feed
 - **Consistent Enforcement**: AI applies guidelines uniformly without human bias
 - **Immediate Feedback**: Users receive instant notification of policy violations
@@ -104,18 +106,19 @@ The cache is implemented using Java's ConcurrentHashMap, providing thread-safe a
 flowchart LR
     Request[Summary Request] --> Hash[Compute SHA-256 Hash]
     Hash --> Check{Cache Hit?}
-    
+
     Check -->|Yes| Cached[Return Cached Summary]
     Check -->|No| Generate[Call Gemini AI]
-    
+
     Generate --> Store[Store in Cache]
     Store --> Return[Return New Summary]
-    
+
     Cached --> Stats[Update Hit Counter]
     Return --> Stats
 ```
 
 **Cache Architecture Features**:
+
 - **SHA-256 Content Hashing**: Cryptographically secure fingerprinting of post content for precise change detection
 - **Automatic Invalidation**: Content edits automatically invalidate cached summaries due to hash change
 - **Time-to-Live (TTL) Support**: Configurable expiration for cache entries to balance freshness and efficiency
@@ -124,6 +127,7 @@ flowchart LR
 - **Memory Efficiency**: Stores only essential data (hash, summary, timestamp) to minimize memory footprint
 
 **Performance and Cost Benefits**:
+
 - **Reduced API Costs**: Cache hits eliminate redundant API calls, saving on Gemini AI usage costs
 - **Improved Response Time**: Cached summaries return in milliseconds versus seconds for AI generation
 - **Lower Latency**: Users experience near-instant summary delivery on cache hits
@@ -132,6 +136,7 @@ flowchart LR
 - **Cost Predictability**: Cache hit rates stabilize API costs over time
 
 **Use Cases**:
+
 - Users frequently view the same popular posts, benefiting from cached summaries
 - Summary requests for older, unedited posts always hit cache
 - High-traffic posts generate one AI call but serve thousands of cached responses
@@ -148,19 +153,19 @@ The in-app notification channel stores notification records directly in Firestor
 ```mermaid
 flowchart TB
     Trigger[Event Trigger] --> Backend[Backend Server]
-    
+
     Backend --> Channel1[In-App Notification]
     Backend --> Channel2[Push Notification]
     Backend --> Channel3[Email Notification]
-    
+
     Channel1 --> Firestore[(Firestore<br/>Notifications)]
     Channel2 --> FCM[Firebase Cloud<br/>Messaging]
     Channel3 --> SMTP[SMTP Server]
-    
+
     FCM --> Device[User Device]
     SMTP --> Inbox[User Email]
     Firestore --> App[Client App]
-    
+
     Device --> User[User]
     Inbox --> User
     App --> User
@@ -169,30 +174,31 @@ flowchart TB
 **Notification Channels Explained**:
 
 1. **In-App Notification Center**
-   - Persistent storage in Firestore user subcollections
-   - Complete notification history accessible anytime
-   - Read/unread status tracking
-   - Searchable and filterable by type
-   - Rich content with deep links to relevant posts or comments
-   - Serves as permanent record of all account activities
+    - Persistent storage in Firestore user subcollections
+    - Complete notification history accessible anytime
+    - Read/unread status tracking
+    - Searchable and filterable by type
+    - Rich content with deep links to relevant posts or comments
+    - Serves as permanent record of all account activities
 
 2. **Push Notifications (FCM)**
-   - Real-time delivery to user devices
-   - Works even when app is closed or in background
-   - Customizable notification sounds and vibration patterns
-   - Deep linking to specific content within the app
-   - Grouped notifications to avoid overwhelming users
-   - Optimal for time-sensitive alerts (new messages, comments)
+    - Real-time delivery to user devices
+    - Works even when app is closed or in background
+    - Customizable notification sounds and vibration patterns
+    - Deep linking to specific content within the app
+    - Grouped notifications to avoid overwhelming users
+    - Optimal for time-sensitive alerts (new messages, comments)
 
 3. **Email Notifications (SMTP)**
-   - Professional HTML-formatted emails
-   - Permanent record in user's email inbox
-   - Detailed information with violation specifics for moderation actions
-   - Works independently of app installation
-   - Includes unsubscribe options for non-critical notifications
-   - Essential for account status changes and security events
+    - Professional HTML-formatted emails
+    - Permanent record in user's email inbox
+    - Detailed information with violation specifics for moderation actions
+    - Works independently of app installation
+    - Includes unsubscribe options for non-critical notifications
+    - Essential for account status changes and security events
 
 **Supported Event Types**:
+
 - **New Upvotes**: Notify when someone upvotes your post or comment
 - **Comments and Replies**: Alert users to new engagement on their content
 - **Post Approval**: Confirm when AI or admin approves a submitted post
@@ -203,6 +209,7 @@ flowchart TB
 - **Administrative Actions**: Keep users informed of any moderator actions affecting their account
 
 **System Benefits**:
+
 - **Delivery Reliability**: Three-channel redundancy ensures critical notifications are received
 - **User Preference**: Users can choose their preferred notification method
 - **Audit Trail**: Complete notification history in Firestore for accountability
@@ -224,48 +231,49 @@ stateDiagram-v2
     NORMAL --> REMINDED: First Violation
     REMINDED --> WARNED: Second Violation
     WARNED --> BANNED: Third Violation
-    
+
     BANNED --> WARNED: De-escalation
     WARNED --> REMINDED: De-escalation
     REMINDED --> NORMAL: De-escalation
-    
+
     NORMAL --> [*]: Account Removed
 ```
 
 **Status Level Descriptions**:
 
 1. **NORMAL** (Level 0)
-   - User in good standing with no violations
-   - Full access to all forum features
-   - No restrictions on posting, commenting, or messaging
-   - Starting status for all new users
-   - Goal status for all rehabilitation paths
+    - User in good standing with no violations
+    - Full access to all forum features
+    - No restrictions on posting, commenting, or messaging
+    - Starting status for all new users
+    - Goal status for all rehabilitation paths
 
 2. **REMINDED** (Level 1)
-   - First violation detected; informal warning issued
-   - All features remain accessible
-   - Notification explains the specific violation and community guidelines
-   - User is encouraged to review policies
-   - Additional violations will result in escalation to WARNED status
-   - Can be de-escalated back to NORMAL through good behavior
+    - First violation detected; informal warning issued
+    - All features remain accessible
+    - Notification explains the specific violation and community guidelines
+    - User is encouraged to review policies
+    - Additional violations will result in escalation to WARNED status
+    - Can be de-escalated back to NORMAL through good behavior
 
 3. **WARNED** (Level 2)
-   - Second violation; formal warning status
-   - User retains posting abilities but is under heightened scrutiny
-   - Email includes detailed violation history and consequences of further violations
-   - Temporary features may be restricted (e.g., reduced posting frequency)
-   - Clear communication that next violation results in BANNED status
-   - Can be de-escalated to REMINDED or NORMAL based on improved conduct
+    - Second violation; formal warning status
+    - User retains posting abilities but is under heightened scrutiny
+    - Email includes detailed violation history and consequences of further violations
+    - Temporary features may be restricted (e.g., reduced posting frequency)
+    - Clear communication that next violation results in BANNED status
+    - Can be de-escalated to REMINDED or NORMAL based on improved conduct
 
 4. **BANNED** (Level 3)
-   - Third violation or severe single violation; account suspended
-   - User cannot access the application (authentication blocked at login)
-   - Displays dedicated "Account Banned" screen with violation summary
-   - Email includes complete violation history and appeal process information
-   - Can only be de-escalated manually by administrators
-   - Serves as most severe enforcement action short of permanent deletion
+    - Third violation or severe single violation; account suspended
+    - User cannot access the application (authentication blocked at login)
+    - Displays dedicated "Account Banned" screen with violation summary
+    - Email includes complete violation history and appeal process information
+    - Can only be de-escalated manually by administrators
+    - Serves as most severe enforcement action short of permanent deletion
 
 **Escalation Triggers**:
+
 - **AI-Rejected Posts**: Automatic escalation when AI moderation rejects content for guideline violations
 - **Admin-Deleted Posts**: Manual escalation when administrators remove posts reported by users
 - **Manual Admin Action**: Administrators can directly set status for exceptional circumstances
@@ -273,6 +281,7 @@ stateDiagram-v2
 - **Severe Single Violations**: Extremely harmful content can skip levels for immediate BANNED status
 
 **Notification and Communication**:
+
 - **Dual Notification**: Every status change sends both email and push notification
 - **Detailed Explanations**: Notifications include specific violation types and affected content
 - **Violation History**: Users receive summary of all violations leading to current status
@@ -281,6 +290,7 @@ stateDiagram-v2
 - **Transparency**: Users always know why their status changed and what content caused it
 
 **De-escalation Path**:
+
 - Users can rehabilitate their status through sustained good behavior
 - Administrators can manually de-escalate users who demonstrate improvement
 - De-escalation triggers congratulatory email encouraging continued positive participation
@@ -288,6 +298,7 @@ stateDiagram-v2
 - System supports full path from BANNED back to NORMAL over time
 
 **Administrative Controls**:
+
 - **Manual Status Assignment**: Admins can set any user to any status level
 - **Blacklist Management Interface**: Dedicated screen for viewing and managing all non-NORMAL users
 - **Status Change History**: Complete audit log of all status changes and reasons
@@ -296,6 +307,7 @@ stateDiagram-v2
 - **Appeal Review**: Dedicated workflow for reviewing and acting on user appeals
 
 **System Benefits**:
+
 - **Consistent Enforcement**: Automated escalation ensures fair, uniform policy application
 - **Transparency**: Users always understand their status and how to improve
 - **Rehabilitation Focus**: De-escalation path encourages behavioral improvement
@@ -313,30 +325,30 @@ flowchart TB
         Client["Client App<br/>(Android Kotlin)"]
         Admin["Admin App<br/>(Android Kotlin)"]
     end
-    
+
     subgraph Firebase["Firebase Services"]
         Firestore["Firestore Database"]
         Auth["Firebase Auth"]
         Storage["Firebase Storage"]
         FCM["FCM Push Notifications"]
     end
-    
+
     subgraph Backend["Backend Server"]
         Spring["Spring Boot<br/>(Java)"]
         Gemini["Gemini AI<br/>(Google AI)"]
         SMTP["SMTP Server<br/>(Email Service)"]
     end
-    
+
     Client <--> Firestore
     Client <--> Auth
     Client <--> Storage
     Client <--> FCM
     Client <--> Spring
-    
+
     Admin <--> Firestore
     Admin <--> Auth
     Admin <--> Spring
-    
+
     Spring <--> Firestore
     Spring <--> Auth
     Spring <--> FCM
@@ -451,18 +463,21 @@ flowchart TB
 #### Core Services
 
 **AI Services (Gemini 2.5 Flash)**
+
 - **Post Content Validation** - Automatic moderation with community guidelines enforcement
 - **Post Summarization** - Intelligent caching with SHA-256 content hashing
 - **Topic Extraction** - AI-powered topic suggestions from post content
 - **Q&A Assistance** - General question answering for academic topics
 
 **Email Services (SMTP)**
+
 - **OTP Verification Emails** - 6-digit verification code delivery
 - **Welcome Emails** - New user greeting messages
 - **Status Notification Emails** - Account status change notifications
 - **Escalation Emails** - Warning and ban notifications with violation details
 
 **Notification Services (FCM)**
+
 - **UPVOTE** - User upvoted a post
 - **COMMENT** - User commented on a post
 - **REPLY** - User replied to a comment
@@ -472,11 +487,13 @@ flowchart TB
 - **STATUS_CHANGED** - Account status changed
 
 **Real-time Processing**
+
 - **Firestore Listeners** - Automatic post validation on creation
 - **Status Updates** - Automatic status transitions (PENDING → APPROVED/REJECTED)
 - **Notification Triggers** - Automatic notifications on AI rejection
 
 **Caching & Performance**
+
 - **Summary Caching** - SHA-256 content hashing for change detection
 - **TTL Support** - Time-to-live expiration for cache entries
 - **Cache Hit Tracking** - Monitoring and analytics for cache effectiveness
@@ -484,20 +501,20 @@ flowchart TB
 
 #### API Endpoints (12)
 
-| Method | Endpoint | Category | Description |
-|--------|----------|----------|-------------|
-| GET | /api/health | Core | Health check and server status |
-| POST | /api/auth/resetPassword | Auth | Admin-only password reset |
-| POST | /api/email/send-otp | Email | OTP verification email delivery |
-| POST | /api/email/send-welcome | Email | Welcome email for new users |
-| POST | /api/email/send-report | Email | Status notification email |
-| POST | /api/posts/askGemini | AI | General AI Q&A interaction |
-| POST | /api/posts/validatePost | AI | Content moderation and validation |
-| POST | /api/posts/summarize | AI | Post summarization with caching |
-| POST | /api/posts/getSuggestedTopics | AI | Topic extraction and suggestions |
-| POST | /api/notifications | Notifications | Trigger push notification |
-| GET | /api/topics/getAll | Topics | Retrieve all forum topics |
-| POST | /api/topics/add | Topics | Add new topics to the forum |
+| Method | Endpoint                      | Category      | Description                       |
+| ------ | ----------------------------- | ------------- | --------------------------------- |
+| GET    | /api/health                   | Core          | Health check and server status    |
+| POST   | /api/auth/resetPassword       | Auth          | Admin-only password reset         |
+| POST   | /api/email/send-otp           | Email         | OTP verification email delivery   |
+| POST   | /api/email/send-welcome       | Email         | Welcome email for new users       |
+| POST   | /api/email/send-report        | Email         | Status notification email         |
+| POST   | /api/posts/askGemini          | AI            | General AI Q&A interaction        |
+| POST   | /api/posts/validatePost       | AI            | Content moderation and validation |
+| POST   | /api/posts/summarize          | AI            | Post summarization with caching   |
+| POST   | /api/posts/getSuggestedTopics | AI            | Topic extraction and suggestions  |
+| POST   | /api/notifications            | Notifications | Trigger push notification         |
+| GET    | /api/topics/getAll            | Topics        | Retrieve all forum topics         |
+| POST   | /api/topics/add               | Topics        | Add new topics to the forum       |
 
 > **For detailed API documentation with request/response formats and sequence diagrams, see**: [`docs/BACKEND_ROUTES.md`](docs/BACKEND_ROUTES.md)
 
@@ -507,49 +524,49 @@ flowchart TB
 
 ### Client Application
 
-| Category | Technology |
-|----------|------------|
-| Language | Kotlin |
-| Min SDK | 24 (Android 7.0) |
-| Target SDK | 36 |
-| Architecture | MVVM (Model-View-ViewModel) |
-| UI | ViewBinding, DataBinding, Material Design |
-| Backend | Firebase (Auth, Firestore, Storage, FCM) |
-| Networking | Retrofit, OkHttp, Moshi |
-| Image Loading | Coil, Glide |
-| Navigation | Jetpack Navigation Component |
-| Location | Google Maps SDK, Places API |
-| Background Tasks | WorkManager |
+| Category         | Technology                                |
+| ---------------- | ----------------------------------------- |
+| Language         | Kotlin                                    |
+| Min SDK          | 24 (Android 7.0)                          |
+| Target SDK       | 36                                        |
+| Architecture     | MVVM (Model-View-ViewModel)               |
+| UI               | ViewBinding, DataBinding, Material Design |
+| Backend          | Firebase (Auth, Firestore, Storage, FCM)  |
+| Networking       | Retrofit, OkHttp, Moshi                   |
+| Image Loading    | Coil, Glide                               |
+| Navigation       | Jetpack Navigation Component              |
+| Location         | Google Maps SDK, Places API               |
+| Background Tasks | WorkManager                               |
 
 ### Admin Application
 
-| Category | Technology |
-|----------|------------|
-| Language | Kotlin |
-| Min SDK | 24 (Android 7.0) |
-| Target SDK | 36 |
-| Architecture | MVVM (Model-View-ViewModel) |
-| UI | View Binding, Material Design Components |
-| Backend | Firebase (Firestore, Auth, Storage) |
-| Networking | Retrofit 2, OkHttp |
-| Image Loading | Glide |
-| Charts | MPAndroidChart |
-| Navigation | Android Jetpack Navigation Component |
-| Caching | SharedPreferences, Gson |
+| Category      | Technology                               |
+| ------------- | ---------------------------------------- |
+| Language      | Kotlin                                   |
+| Min SDK       | 24 (Android 7.0)                         |
+| Target SDK    | 36                                       |
+| Architecture  | MVVM (Model-View-ViewModel)              |
+| UI            | View Binding, Material Design Components |
+| Backend       | Firebase (Firestore, Auth, Storage)      |
+| Networking    | Retrofit 2, OkHttp                       |
+| Image Loading | Glide                                    |
+| Charts        | MPAndroidChart                           |
+| Navigation    | Android Jetpack Navigation Component     |
+| Caching       | SharedPreferences, Gson                  |
 
 ### Backend Server
 
-| Category | Technology |
-|----------|------------|
-| Language | Java 17 |
-| Framework | Spring Boot 3.x |
-| Build Tool | Gradle |
-| AI Service | Google Gemini 2.5 Flash |
-| Email | Jakarta Mail (SMTP) |
-| Database | Firebase Firestore |
-| Authentication | Firebase Admin SDK |
+| Category           | Technology               |
+| ------------------ | ------------------------ |
+| Language           | Java 17                  |
+| Framework          | Spring Boot 3.x          |
+| Build Tool         | Gradle                   |
+| AI Service         | Google Gemini 2.5 Flash  |
+| Email              | Jakarta Mail (SMTP)      |
+| Database           | Firebase Firestore       |
+| Authentication     | Firebase Admin SDK       |
 | Push Notifications | Firebase Cloud Messaging |
-| Deployment | Docker, AWS EC2 |
+| Deployment         | Docker, AWS EC2          |
 
 ---
 
@@ -557,38 +574,43 @@ flowchart TB
 
 Comprehensive documentation for all features and workflows is available in the `docs/` directory:
 
-| Document | Description |
-|----------|-------------|
+| Document                                        | Description                                                                           |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------- |
 | [`CLIENT_FEATURES.md`](docs/CLIENT_FEATURES.md) | Complete client application feature specifications with flow diagrams and screenshots |
-| [`ADMIN_FEATURES.md`](docs/ADMIN_FEATURES.md) | Complete admin application feature specifications with flow diagrams and screenshots |
-| [`BACKEND_ROUTES.md`](docs/BACKEND_ROUTES.md) | Backend API endpoints, request/response formats, and sequence diagrams |
-| [`CROSS_APP_FLOWS.md`](docs/CROSS_APP_FLOWS.md) | End-to-end workflows demonstrating cross-application integration |
+| [`ADMIN_FEATURES.md`](docs/ADMIN_FEATURES.md)   | Complete admin application feature specifications with flow diagrams and screenshots  |
+| [`BACKEND_ROUTES.md`](docs/BACKEND_ROUTES.md)   | Backend API endpoints, request/response formats, and sequence diagrams                |
+| [`CROSS_APP_FLOWS.md`](docs/CROSS_APP_FLOWS.md) | End-to-end workflows demonstrating cross-application integration                      |
 
 ### Cross-Application Workflows
 
 The system includes 13 integrated workflows that span multiple applications:
 
 **Phase 1: User Onboarding**
+
 - Registration with OTP Email Verification
 - Welcome Email After Verification
 - Forgot Password Reset
 
 **Phase 2: Content Creation**
+
 - Post Creation with AI Topic Suggestions
 - Post Creation & Automatic AI Validation
 - AI Post Summary Generation
 
 **Phase 3: User Interactions**
+
 - Upvote/Comment/Reply Push Notifications
 - Chat Message Push Notification
 - Share Post via Direct Message
 
 **Phase 4: Content Moderation**
+
 - User Reports Post → Admin Reviews
 - Admin AI Override (Approve/Reject Post)
 - Admin Deletes Reported Post & User Status Escalation
 
 **Phase 5: User Account Management**
+
 - Admin Updates User Status (Blacklist Management)
 
 > **For detailed workflow diagrams and integration flows, see**: [`docs/CROSS_APP_FLOWS.md`](docs/CROSS_APP_FLOWS.md)
@@ -614,15 +636,16 @@ flowchart LR
 
 **File**: `docs/docker-build.yml`
 
-| Aspect | Details |
-|--------|---------|
-| Triggers | Push to main/develop, Pull requests, Git tags (v*.*.*) |
-| Registry | docker.io/longtoZ/forumus-backend |
-| Platform | linux/amd64 |
-| Caching | GitHub Actions cache |
-| Tags | Branch name, PR reference, semantic version, SHA, latest |
+| Aspect   | Details                                                  |
+| -------- | -------------------------------------------------------- |
+| Triggers | Push to main/develop, Pull requests, Git tags (v*.*.\*)  |
+| Registry | docker.io/longtoZ/forumus-backend                        |
+| Platform | linux/amd64                                              |
+| Caching  | GitHub Actions cache                                     |
+| Tags     | Branch name, PR reference, semantic version, SHA, latest |
 
 **Process Steps**:
+
 1. Checkout repository
 2. Log in to Docker Hub
 3. Extract metadata (tags, labels)
@@ -634,15 +657,16 @@ flowchart LR
 
 **File**: `docs/deploy-aws.yml`
 
-| Aspect | Details |
-|--------|---------|
-| Triggers | After successful Docker build, Manual dispatch |
-| Target | AWS EC2 instance |
-| Process | Stop containers → Pull image → Start containers → Health check |
-| Health Check | GET /api/health (5 retries, 10s interval) |
-| Deployment Strategy | Rolling deployment with health verification |
+| Aspect              | Details                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| Triggers            | After successful Docker build, Manual dispatch                 |
+| Target              | AWS EC2 instance                                               |
+| Process             | Stop containers → Pull image → Start containers → Health check |
+| Health Check        | GET /api/health (5 retries, 10s interval)                      |
+| Deployment Strategy | Rolling deployment with health verification                    |
 
 **Required Secrets**:
+
 - EC2_HOST - EC2 instance public IP or hostname
 - EC2_USER - SSH username
 - EC2_SSH_KEY - Private SSH key for authentication
@@ -650,6 +674,7 @@ flowchart LR
 - DOCKERHUB_TOKEN - Docker Hub access token
 
 **Deployment Process**:
+
 1. Checkout repository
 2. SSH into EC2 instance
 3. Navigate to project directory (~/forumus-backend)
@@ -666,25 +691,11 @@ flowchart LR
 
 ## Firebase Services
 
-### Firestore Database
-
-| Collection | Purpose | Key Fields |
-|------------|---------|------------|
-| users | User profiles and settings | uid, email, status, role, fcmToken |
-| users/{uid}/notifications | User notification history | type, actorId, targetId, isRead |
-| posts | Forum posts | post_id, status, reportCount, violation_type |
-| reports | User-submitted content reports | postId, nameViolation |
-| chats | Direct messaging conversations | participants, lastMessage |
-| chats/{chatId}/messages | Chat messages | content, senderId, type, imageUrls |
-| topics | Forum categories | name, description |
-
-### Other Firebase Services
-
-| Service | Purpose |
-|---------|---------|
-| Firebase Authentication | Email/password authentication with Admin SDK integration |
-| Firebase Storage | Profile pictures, post media (images/videos), chat attachments |
-| Firebase Cloud Messaging | Push notifications with deep linking and background delivery |
+| Service                  | Purpose                                                        |
+| ------------------------ | -------------------------------------------------------------- |
+| Firebase Authentication  | Email/password authentication with Admin SDK integration       |
+| Firebase Storage         | Profile pictures, post media (images/videos), chat attachments |
+| Firebase Cloud Messaging | Push notifications with deep linking and background delivery   |
 
 ---
 
@@ -692,23 +703,23 @@ flowchart LR
 
 ### Testing Commands
 
-| Platform | Command | Purpose |
-|----------|---------|---------|
-| Mobile Apps | ./gradlew test | Run unit tests |
-| Mobile Apps | ./gradlew connectedAndroidTest | Run instrumentation tests |
-| Mobile Apps | ./gradlew jacocoTestReport | Generate coverage report |
-| Backend | ./gradlew test | Run all tests |
-| Backend | ./gradlew test --tests ClassName | Run specific test class |
-| Backend | ./gradlew jacocoTestReport | Generate coverage report |
+| Platform    | Command                          | Purpose                   |
+| ----------- | -------------------------------- | ------------------------- |
+| Mobile Apps | ./gradlew test                   | Run unit tests            |
+| Mobile Apps | ./gradlew connectedAndroidTest   | Run instrumentation tests |
+| Mobile Apps | ./gradlew jacocoTestReport       | Generate coverage report  |
+| Backend     | ./gradlew test                   | Run all tests             |
+| Backend     | ./gradlew test --tests ClassName | Run specific test class   |
+| Backend     | ./gradlew jacocoTestReport       | Generate coverage report  |
 
 ### Building for Production
 
-| Platform | Command | Output |
-|----------|---------|--------|
-| Client/Admin | ./gradlew assembleRelease | Release APK file |
-| Client/Admin | ./gradlew bundleRelease | App Bundle (AAB) for Play Store |
-| Backend | ./gradlew bootJar | Executable JAR file |
-| Backend | docker build -t forumus-backend:latest . | Docker image |
+| Platform     | Command                                  | Output                          |
+| ------------ | ---------------------------------------- | ------------------------------- |
+| Client/Admin | ./gradlew assembleRelease                | Release APK file                |
+| Client/Admin | ./gradlew bundleRelease                  | App Bundle (AAB) for Play Store |
+| Backend      | ./gradlew bootJar                        | Executable JAR file             |
+| Backend      | docker build -t forumus-backend:latest . | Docker image                    |
 
 ---
 
@@ -718,7 +729,6 @@ This project is proprietary software developed for university use. All rights re
 
 ---
 
-**Developed by**: University Development Team  
-**Contact**: support@university.edu  
+**Developed by**: Forumus Development Team - University of Science, VNU-HCMUS
 **Documentation Version**: 1.0.0  
 **Last Updated**: January 2026
