@@ -2,6 +2,8 @@
 
 A comprehensive mobile forum application ecosystem built with Android Kotlin and Spring Boot, designed specifically for university communities to facilitate academic discussions, content moderation, and real-time communication.
 
+Some special features of our project can be found here: [youtu.be/o50v57Y16vA](youtu.be/o50v57Y16vA)
+
 ---
 
 ## Table of Contents
